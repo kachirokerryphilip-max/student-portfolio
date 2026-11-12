@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Academic Planner | My Student Portfolio</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Website Header -->
+    <header>
+        <h1>Academic Planner</h1>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Me</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="planner.html" class="active" aria-current="page">Academic Planner</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="planner-main">
+
+        <!-- Dashboard Introduction -->
+        <section class="planner-intro">
+
+            <p class="welcome-text">
+                STAY ORGANIZED AND PRODUCTIVE
+            </p>
+
+            <h2>
+                My Academic <span>Dashboard</span>
+            </h2>
+
+            <p>
+                Plan your studies, manage your assignments and
+                keep track of your academic goals.
+            </p>
+
+        </section>
+
+
+        <!-- Academic Statistics -->
+        <section class="statistics-section">
+
+            <h2 class="section-heading">
+                Task Overview
+            </h2>
+
+            <div class="statistics-grid">
+
+                <article class="stat-card">
+                    <h3>Total Tasks</h3>
+                    <p id="total-tasks">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h3>Completed</h3>
+                    <p id="completed-tasks">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h3>Pending</h3>
+                    <p id="pending-tasks">0</p>
+                </article>
+
+                <article class="stat-card">
+                    <h3>Overdue</h3>
+                    <p id="overdue-tasks">0</p>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- Add Task Form -->
+        <section class="task-form-section">
+
+            <h2 class="section-heading">
+                Add a New Task
+            </h2>
+
+            <form id="task-form">
+
+                <!-- Task Description -->
+                <div class="form-group">
+
+                    <label for="task-input">
+                        Task Description
+                    </label>
+
+                    <input
+                        type="text"
+                        id="task-input"
+                        placeholder="e.g. Complete CSC106 assignment"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Course Selection -->
+                <div class="form-group">
+
+                    <label for="course-select">
+                        Select Course
+                    </label>
+
+                    <select id="course-select" required>
+
+                        <option value="">
+                            Choose a course
+                        </option>
+
+                        <option value="CSC106">
+                            CSC106
+                        </option>
+
+                        <option value="COS102">
+                            COS102
+                        </option>
+
+                        <option value="PHY102">
+                            PHY102
+                        </option>
+
+                        <option value="GST122">
+                            GST122
+                        </option>
+
+                        <option value="MTH102">
+                            MTH102
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                    <button
+                        type="button"
+                        id="add-course-button">
+                        + Add New Course
+                    </button>
+
+                </div>
+
+
+                <!-- Priority -->
+                <div class="form-group">
+
+                    <label for="priority-select">
+                        Priority
+                    </label>
+
+                    <select id="priority-select" required>
+
+                        <option value="Low">
+                            Low
+                        </option>
+
+                        <option value="Medium">
+                            Medium
+                        </option>
+
+                        <option value="High" selected>
+                            High
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Due Date -->
+                <div class="form-group">
+
+                    <label for="due-date">
+                        Due Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="due-date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Submit Button -->
+                <button type="submit">
+                    Add Task
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- Task Management -->
+        <section class="task-management-section">
+
+            <h2 class="section-heading">
+                My Tasks
+            </h2>
+
+            <label for="task-filter">
+                Filter Tasks
+            </label>
+
+            <select id="task-filter">
+
+                <option value="all">
+                    All Tasks
+                </option>
+
+                <option value="pending">
+                    Pending
+                </option>
+
+                <option value="completed">
+                    Completed
+                </option>
+
+                <option value="overdue">
+                    Overdue
+                </option>
+
+            </select>
+
+            <p id="empty-message">
+                No tasks added yet.
+            </p>
+
+            <ul id="task-list"></ul>
+
+        </section>
+
+    </main>
+
+
+    <!-- Website Footer -->
+    <footer>
+
+        <p>
+            &copy; 2026 My Student Portfolio. All rights reserved.
+        </p>
+
+    </footer>
+
+
+    <!-- JavaScript -->
+    <script src="js/script.js"></script>
+
+</body>
+
+</html>
