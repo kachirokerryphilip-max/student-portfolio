@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -51,10 +52,14 @@
                     and Future Security Professional
                 </h3>
 
+                <!-- Welcome Message and Brief Biography -->
                 <p>
-                    Welcome to my student portfolio! This website
-                    showcases my academic journey, technical skills,
-                    projects and professional aspirations.
+                    I am Kerry Philip, a Cybersecurity student at
+                    Miva Open University with a growing interest in
+                    technology, networking and cybersecurity.
+                    This portfolio showcases my academic journey,
+                    technical skills, projects and professional
+                    aspirations.
                 </p>
 
                 <a href="about.html" class="hero-button">
@@ -92,12 +97,101 @@
 
             </div>
 
+            <!-- Profile Image and Audio Player -->
             <div class="hero-image">
 
                 <img
                     src="images/profile.png"
                     alt="Photograph of Kerry"
                 >
+
+                <!-- Personal Audio Introduction -->
+                <div class="voice-player" id="voicePlayer">
+
+                    <audio id="introAudio" preload="metadata">
+                        <source src="audio/portfolio-introduction.mp3" type="audio/mpeg">
+                        Your browser does not support audio playback.
+                    </audio>
+
+                    <div class="voice-player-heading">
+
+                        <span class="voice-player-label">
+                            A LITTLE INTRODUCTION
+                        </span>
+
+                        <span class="voice-player-subtitle">
+                            Get to know me through my voice
+                        </span>
+
+                    </div>
+
+                    <div class="voice-player-controls">
+
+                        <!-- Play and Pause Button -->
+                        <button
+                            type="button"
+                            class="voice-play-btn"
+                            id="voicePlayBtn"
+                            aria-label="Play introduction"
+                        >
+                            <span id="voicePlayIcon">▶</span>
+                        </button>
+
+                        <div class="voice-player-details">
+
+                            <div class="voice-player-top">
+
+                                <span>My Audio Introduction</span>
+
+                                <span id="voiceTime">
+                                    0:00 / 0:00
+                                </span>
+
+                            </div>
+
+                            <!-- Animated Waveform -->
+                            <div class="voice-waveform" aria-hidden="true">
+
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+                                <span class="wave-bar"></span>
+
+                            </div>
+
+                            <!-- Audio Progress -->
+                            <input
+                                type="range"
+                                id="voiceProgress"
+                                class="voice-progress"
+                                min="0"
+                                max="100"
+                                value="0"
+                                step="0.1"
+                                aria-label="Audio playback position"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
@@ -115,7 +209,9 @@
 
     </footer>
 
+    <!-- External JavaScript -->
+    <script src="js/script.js" defer></script>
+
 </body>
 
 </html>
-<!-- Portfolio deployment update -->
