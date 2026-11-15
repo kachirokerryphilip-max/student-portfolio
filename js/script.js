@@ -1,188 +1,262 @@
 
-// ==========================================
-// ACADEMIC PLANNER
-// ==========================================
-
-// Get HTML elements
-const courseSelect = document.getElementById("course-select");
-const addCourseButton = document.getElementById("add-course-button");
-
-const taskForm = document.getElementById("task-form");
-const taskList = document.getElementById("task-list");
-
-const taskFilter = document.getElementById("task-filter");
-const emptyMessage = document.getElementById("empty-message");
+/* =========================================
+   STUDENT PORTFOLIO - MAIN JAVASCRIPT
+   ========================================= */
 
 
-// ==========================================
-// RUN PLANNER CODE ONLY ON PLANNER PAGE
-// ==========================================
+/* =========================================
+   1. ACADEMIC PLANNER
+   ========================================= */
 
-if (taskForm) {
+function initialisePlanner() {
+    const taskForm = document.getElementById("task-form");
 
-    // ==========================================
-    // 1. LOAD SAVED COURSES
-    // ==========================================
+    if (!taskForm) return;
 
-    let customCourses = [];
+    const taskInput = document.getElementById("task-input");
+    const courseSelect = document.getElementById("course-select");
+    const addCourseButton = document.getElementById("add-course-button");
+    const prioritySelect = document.getElementById("priority-select");
+    const dueDateInput = document.getElementById("due-date");
+    const taskList = document.getElementById("task-list");
+    const taskFilter = document.getElementById("task-filter");
+    const emptyMessage = document.getElementById("empty-message");
 
-    const savedCourses = localStorage.getItem("customCourses");
+    const totalTasks = document.getElementById("total-tasks");
+    const completedTasks = document.getElementById("completed-tasks");
+    const pendingTasks = document.getElementById("pending-tasks");
+    const overdueTasks = document.getElementById("overdue-tasks");
 
-    if (savedCourses) {
+    // Load saved data safely.
+    function loadData(key, fallback) {
         try {
-            customCourses = JSON.parse(savedCourses);
+            const savedData = localStorage.getItem(key);
+            return savedData ? JSON.parse(savedData) : fallback;
         } catch (error) {
-            customCourses = [];
+            console.error(`Could not load ${key}:`, error);
+            return fallback;
         }
     }
 
+    let tasks = loadData("tasks", []);
+    let customCourses = loadData("customCourses", []);
 
-    // ==========================================
-    // 2. ADD COURSE TO DROPDOWN
-    // ==========================================
+    if (!Array.isArray(tasks)) tasks = [];
+    if (!Array.isArray(customCourses)) customCourses = [];
 
-    function addCourseToDropdown(course) {
-
-        const option = document.createElement("option");
-
-        option.value = course.code;
-
-        option.textContent = course.code + " - " + course.name;
-
-        courseSelect.appendChild(option);
+    // Save planner information.
+    function saveTasks() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
     }
 
-
-    // ==========================================
-    // 3. LOAD CUSTOM COURSES
-    // ==========================================
-
-    function loadCourses() {
-
-        customCourses.forEach(function(course) {
-            addCourseToDropdown(course);
-        });
-
-    }
-
-    loadCourses();
-
-
-    // ==========================================
-    // 4. ADD NEW COURSE
-    // ==========================================
-
-    addCourseButton.addEventListener("click", function() {
-
-        const courseCode = prompt("Enter the new course code:");
-
-        if (courseCode === null || courseCode.trim() === "") {
-            return;
-        }
-
-        const newCode = courseCode.trim().toUpperCase();
-
-        // Check if course already exists
-        const courseExists = customCourses.some(function(course) {
-            return course.code.toUpperCase() === newCode;
-        });
-
-        const existingOption = Array.from(courseSelect.options).some(
-            function(option) {
-                return option.value.toUpperCase() === newCode;
-            }
-        );
-
-        if (courseExists || existingOption) {
-            alert("This course already exists.");
-            return;
-        }
-
-        // Create new course
-        const newCourse = {
-            code: newCode,
-            name: newCode
-        };
-
-        customCourses.push(newCourse);
-
-        // Save course in Local Storage
+    function saveCourses() {
         localStorage.setItem(
             "customCourses",
             JSON.stringify(customCourses)
         );
-
-        addCourseToDropdown(newCourse);
-
-        courseSelect.value = newCode;
-
-        alert(newCode + " has been added successfully!");
-
-    });
-
-
-    // ==========================================
-    // 5. LOAD SAVED TASKS
-    // ==========================================
-
-    let tasks = [];
-
-    const savedTasks = localStorage.getItem("tasks");
-
-    if (savedTasks) {
-        try {
-            tasks = JSON.parse(savedTasks);
-        } catch (error) {
-            tasks = [];
-        }
     }
 
+    // Get today's local date.
+    function getLocalDateString() {
+        const today = new Date();
 
-    // ==========================================
-    // 6. SAVE TASKS
-    // ==========================================
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
 
-    function saveTasks() {
+        return `${year}-${month}-${day}`;
+    }
 
-        localStorage.setItem(
-            "tasks",
-            JSON.stringify(tasks)
+    // Restore previously added courses.
+    function loadCustomCourses() {
+        customCourses.forEach(course => {
+            const alreadyExists = Array.from(courseSelect.options)
+                .some(option => option.value === course);
+
+            if (!alreadyExists) {
+                const option = document.createElement("option");
+                option.value = course;
+                option.textContent = course;
+                courseSelect.appendChild(option);
+            }
+        });
+    }
+
+    // Add a custom course.
+    if (addCourseButton && courseSelect) {
+        addCourseButton.addEventListener("click", function () {
+            const courseName = prompt("Enter the name of the new course:");
+
+            if (!courseName || !courseName.trim()) return;
+
+            const newCourse = courseName.trim();
+
+            const existingCourse = Array.from(courseSelect.options)
+                .some(option =>
+                    option.value.toLowerCase() === newCourse.toLowerCase()
+                );
+
+            if (existingCourse) {
+                alert("This course already exists.");
+                return;
+            }
+
+            customCourses.push(newCourse);
+            saveCourses();
+
+            const option = document.createElement("option");
+            option.value = newCourse;
+            option.textContent = newCourse;
+
+            courseSelect.appendChild(option);
+            courseSelect.value = newCourse;
+        });
+    }
+
+    // Check whether a task is overdue.
+    function isOverdue(task) {
+        return (
+            task.dueDate &&
+            task.dueDate < getLocalDateString() &&
+            !task.completed
         );
-
     }
 
+    // Update task statistics.
+    function updateStatistics() {
+        const total = tasks.length;
 
-    // ==========================================
-    // 7. ADD NEW TASK
-    // ==========================================
+        const completed = tasks.filter(task => task.completed).length;
 
-    taskForm.addEventListener("submit", function(event) {
+        const pending = tasks.filter(task => !task.completed).length;
 
+        const overdue = tasks.filter(task => isOverdue(task)).length;
+
+        if (totalTasks) totalTasks.textContent = total;
+        if (completedTasks) completedTasks.textContent = completed;
+        if (pendingTasks) pendingTasks.textContent = pending;
+        if (overdueTasks) overdueTasks.textContent = overdue;
+    }
+
+    // Display tasks.
+    function renderTasks() {
+        if (!taskList) return;
+
+        taskList.innerHTML = "";
+
+        const selectedFilter = taskFilter ? taskFilter.value : "all";
+
+        let filteredTasks = tasks;
+
+        if (selectedFilter === "pending") {
+            filteredTasks = tasks.filter(task => !task.completed);
+        } else if (selectedFilter === "completed") {
+            filteredTasks = tasks.filter(task => task.completed);
+        } else if (selectedFilter === "overdue") {
+            filteredTasks = tasks.filter(task => isOverdue(task));
+        }
+
+        if (filteredTasks.length === 0) {
+            if (emptyMessage) {
+                emptyMessage.style.display = "block";
+            }
+        } else if (emptyMessage) {
+            emptyMessage.style.display = "none";
+        }
+
+        filteredTasks.forEach(task => {
+            const listItem = document.createElement("li");
+            listItem.className = "task-item";
+
+            // Checkbox.
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = task.completed;
+            checkbox.setAttribute("aria-label", "Mark task as completed");
+
+            // Task information.
+            const taskInfo = document.createElement("div");
+            taskInfo.className = "task-info";
+
+            const description = document.createElement("span");
+            description.className = "task-description";
+            description.textContent = task.description;
+
+            if (task.completed) {
+                description.style.textDecoration = "line-through";
+            }
+
+            const details = document.createElement("small");
+            details.className = "task-details";
+
+            const dueText = task.dueDate
+                ? `Due: ${task.dueDate}`
+                : "No due date";
+
+            details.textContent =
+                `${task.course} | ${task.priority} priority | ${dueText}`;
+
+            taskInfo.appendChild(description);
+            taskInfo.appendChild(details);
+
+            // Delete button.
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "delete-task";
+            deleteButton.textContent = "Delete";
+
+            // Mark task as completed or pending.
+            checkbox.addEventListener("change", function () {
+                const taskToUpdate = tasks.find(
+                    item => item.id === task.id
+                );
+
+                if (taskToUpdate) {
+                    taskToUpdate.completed = checkbox.checked;
+                    saveTasks();
+                    renderTasks();
+                }
+            });
+
+            // Delete task.
+            deleteButton.addEventListener("click", function () {
+                tasks = tasks.filter(item => item.id !== task.id);
+
+                saveTasks();
+                renderTasks();
+            });
+
+            listItem.appendChild(checkbox);
+            listItem.appendChild(taskInfo);
+            listItem.appendChild(deleteButton);
+
+            taskList.appendChild(listItem);
+        });
+
+        updateStatistics();
+    }
+
+    // Add a new task.
+    taskForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
-        const description =
-            document.getElementById("task-input").value.trim();
-
+        const description = taskInput.value.trim();
         const course = courseSelect.value;
+        const priority = prioritySelect.value;
+        const dueDate = dueDateInput.value;
 
-        const priority =
-            document.getElementById("priority-select").value;
-
-        const dueDate =
-            document.getElementById("due-date").value;
-
-        if (
-            description === "" ||
-            course === "" ||
-            priority === "" ||
-            dueDate === ""
-        ) {
-            alert("Please complete all task fields.");
+        if (!description) {
+            alert("Please enter a task.");
             return;
         }
 
-        const task = {
-            id: Date.now(),
+        if (!course) {
+            alert("Please select a course.");
+            return;
+        }
+
+        const newTask = {
+            id: Date.now().toString() + Math.random().toString(16).slice(2),
             description: description,
             course: course,
             priority: priority,
@@ -190,255 +264,313 @@ if (taskForm) {
             completed: false
         };
 
-        tasks.push(task);
+        tasks.push(newTask);
 
         saveTasks();
-
         taskForm.reset();
-
         renderTasks();
-
     });
 
-
-    // ==========================================
-    // 8. DISPLAY TASKS
-    // ==========================================
-
-    function renderTasks() {
-
-        taskList.replaceChildren();
-
-        const selectedFilter = taskFilter.value;
-
-        const today = new Date().toISOString().split("T")[0];
-
-        const filteredTasks = tasks.filter(function(task) {
-
-            if (selectedFilter === "completed") {
-                return task.completed;
-            }
-
-            if (selectedFilter === "pending") {
-                return !task.completed;
-            }
-
-            if (selectedFilter === "overdue") {
-                return !task.completed && task.dueDate < today;
-            }
-
-            return true;
-
-        });
-
-        if (filteredTasks.length === 0) {
-            emptyMessage.style.display = "block";
-        } else {
-            emptyMessage.style.display = "none";
-        }
-
-        filteredTasks.forEach(function(task) {
-
-            const taskItem = document.createElement("li");
-
-            // Checkbox
-            const checkbox = document.createElement("input");
-
-            checkbox.type = "checkbox";
-            checkbox.checked = task.completed;
-
-            // Task description
-            const taskText = document.createElement("span");
-
-            taskText.textContent =
-                task.description +
-                " | " +
-                task.course +
-                " | Priority: " +
-                task.priority +
-                " | Due: " +
-                task.dueDate;
-
-            if (task.completed) {
-                taskText.style.textDecoration = "line-through";
-            }
-
-            // Mark task as completed
-            checkbox.addEventListener("change", function() {
-
-                task.completed = checkbox.checked;
-
-                saveTasks();
-
-                renderTasks();
-
-            });
-
-            // Delete button
-            const deleteButton = document.createElement("button");
-
-            deleteButton.textContent = "Delete";
-            deleteButton.type = "button";
-
-            deleteButton.addEventListener("click", function() {
-
-                tasks = tasks.filter(function(item) {
-                    return item.id !== task.id;
-                });
-
-                saveTasks();
-
-                renderTasks();
-
-            });
-
-            taskItem.appendChild(checkbox);
-            taskItem.appendChild(taskText);
-            taskItem.appendChild(deleteButton);
-
-            taskList.appendChild(taskItem);
-
-        });
-
-        updateStatistics();
-
+    // Filter tasks.
+    if (taskFilter) {
+        taskFilter.addEventListener("change", renderTasks);
     }
 
-
-    // ==========================================
-    // 9. FILTER TASKS
-    // ==========================================
-
-    taskFilter.addEventListener("change", function() {
-
-        renderTasks();
-
-    });
-
-
-    // ==========================================
-    // 10. UPDATE DASHBOARD STATISTICS
-    // ==========================================
-
-    function updateStatistics() {
-
-        const today = new Date().toISOString().split("T")[0];
-
-        const total = tasks.length;
-
-        const completed = tasks.filter(function(task) {
-            return task.completed;
-        }).length;
-
-        const pending = tasks.filter(function(task) {
-            return !task.completed;
-        }).length;
-
-        const overdue = tasks.filter(function(task) {
-            return !task.completed && task.dueDate < today;
-        }).length;
-
-        document.getElementById("total-tasks").textContent = total;
-
-        document.getElementById("completed-tasks").textContent = completed;
-
-        document.getElementById("pending-tasks").textContent = pending;
-
-        document.getElementById("overdue-tasks").textContent = overdue;
-
-    }
-
-
-    // ==========================================
-    // 11. START THE PLANNER
-    // ==========================================
-
+    loadCustomCourses();
     renderTasks();
-
 }
 
 
-// ==========================================
-// CONTACT FORM VALIDATION
-// ==========================================
+/* =========================================
+   2. CONTACT FORM VALIDATION
+   ========================================= */
 
-const contactForm = document.getElementById("contact-form");
+function initialiseContactForm() {
+    const contactForm = document.getElementById("contact-form");
 
-if (contactForm) {
+    if (!contactForm) return;
 
-    contactForm.addEventListener("submit", function(event) {
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const phoneInput = document.getElementById("phone");
+    const messageInput = document.getElementById("message");
+    const feedback = document.getElementById("form-feedback");
 
-        // Prevent page refresh
+    contactForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
-        // Get form values
-        const name = document.getElementById("name").value.trim();
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        const phone = phoneInput ? phoneInput.value.trim() : "";
+        const message = messageInput.value.trim();
 
-        const email = document.getElementById("email").value.trim();
-
-        const phone = document.getElementById("phone").value.trim();
-
-        const message = document.getElementById("message").value.trim();
-
-        const feedback = document.getElementById("form-feedback");
-
-        // Reset previous feedback
-        feedback.style.color = "red";
-
-        // Validate name
+        // Validation patterns.
         const namePattern = /^[A-Za-z\s'-]+$/;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phonePattern = /^0\d{10}$/;
 
-         if (name === "") {
-          feedback.textContent = "Please enter your name.";
-          return;
+        function showFeedback(messageText, isError) {
+            if (!feedback) return;
+
+            feedback.textContent = messageText;
+            feedback.style.color = isError ? "#ff6b6b" : "#4ade80";
         }
 
-         if (!namePattern.test(name)) {
-          feedback.textContent = "Name must contain letters only.";
-          return;
-        }
-
-        // Validate email
-        if (email === "") {
-            feedback.textContent = "Please enter your email.";
+        // Check required fields.
+        if (!name || !email || !message) {
+            showFeedback(
+                "Please complete all required fields.",
+                true
+            );
             return;
         }
-        
-        // Check email format
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-         if (!emailPattern.test(email)) {
-          feedback.textContent = "Please enter a valid email address.";
-          return;
+        // Validate name.
+        if (!namePattern.test(name)) {
+            showFeedback(
+                "Please enter a valid name.",
+                true
+            );
+            return;
+        }
+
+        // Validate email.
+        if (!emailPattern.test(email)) {
+            showFeedback(
+                "Please enter a valid email address.",
+                true
+            );
+            return;
+        }
+
+        // Validate phone only when the user enters one.
+        if (phone && !phonePattern.test(phone)) {
+            showFeedback(
+                "Please enter a valid 11-digit Nigerian phone number.",
+                true
+            );
+            return;
+        }
+
+        // Validate message.
+        if (message.length < 5) {
+            showFeedback(
+                "Your message should contain at least 5 characters.",
+                true
+            );
+            return;
+        }
+
+        // Demonstration form: no backend submission.
+        showFeedback(
+            "Your details passed validation. This demonstration form does not send messages to a server yet.",
+            false
+        );
+    });
 }
 
 
-        // Validate phone
-        if (phone === "") {
-         feedback.textContent = "Please enter your phone number.";
-         return;
-        }
+/* =========================================
+   3. IMAGE LIGHTBOX
+   ========================================= */
 
-        const phonePattern = /^0\d{10}$/;
+function initialiseLightbox() {
+    const images = document.querySelectorAll("img");
 
-        if (!phonePattern.test(phone)) {
-         feedback.textContent = "Enter a valid 11-digit Nigerian phone number.";
-         return;
-        }
+    if (images.length === 0) return;
 
-        // Validate message
-        if (message === "") {
-            feedback.textContent = "Please enter your message.";
-            return;
-        }
+    const lightbox = document.createElement("div");
+    lightbox.className = "image-lightbox";
 
-        // All validation checks passed
-        feedback.textContent = "Your message has been submitted successfully!";
+    lightbox.style.cssText = `
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.92);
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    `;
 
-        feedback.style.color = "green";
+    const enlargedImage = document.createElement("img");
 
-        contactForm.reset();
+    enlargedImage.style.cssText = `
+        max-width: 90%;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 10px;
+    `;
 
+    const closeButton = document.createElement("button");
+
+    closeButton.type = "button";
+    closeButton.textContent = "×";
+    closeButton.setAttribute("aria-label", "Close image");
+
+    closeButton.style.cssText = `
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 40px;
+        cursor: pointer;
+    `;
+
+    lightbox.appendChild(enlargedImage);
+    lightbox.appendChild(closeButton);
+
+    document.body.appendChild(lightbox);
+
+    function closeLightbox() {
+        lightbox.style.display = "none";
+        enlargedImage.src = "";
+    }
+
+    // Open images when clicked.
+    images.forEach(image => {
+        image.style.cursor = "pointer";
+
+        image.addEventListener("click", function () {
+            if (!image.src) return;
+
+            enlargedImage.src = image.src;
+            enlargedImage.alt = image.alt;
+            lightbox.style.display = "flex";
+        });
     });
 
+    closeButton.addEventListener("click", closeLightbox);
+
+    // Close when the background is clicked.
+    lightbox.addEventListener("click", function (event) {
+        if (event.target === lightbox) {
+            closeLightbox();
+        }
+    });
+
+    // Close using the Escape key.
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeLightbox();
+        }
+    });
+}
+
+
+/* =========================================
+   4. AUDIO INTRODUCTION PLAYER
+   ========================================= */
+
+function initialiseAudioPlayer() {
+    const audio = document.getElementById("introAudio");
+    const player = document.getElementById("voicePlayer");
+    const playButton = document.getElementById("voicePlayBtn");
+    const playIcon = document.getElementById("voicePlayIcon");
+    const timeDisplay = document.getElementById("voiceTime");
+    const progressBar = document.getElementById("voiceProgress");
+
+    if (
+        !audio ||
+        !player ||
+        !playButton ||
+        !playIcon ||
+        !timeDisplay ||
+        !progressBar
+    ) {
+        return;
+    }
+
+    // Format seconds into minutes and seconds.
+    function formatTime(seconds) {
+        if (!Number.isFinite(seconds)) return "0:00";
+
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+
+        return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+    }
+
+    // Update audio progress and time.
+    function updateProgress() {
+        const currentTime = audio.currentTime || 0;
+        const duration = audio.duration || 0;
+
+        timeDisplay.textContent =
+            `${formatTime(currentTime)} / ${formatTime(duration)}`;
+
+        progressBar.value = duration
+            ? (currentTime / duration) * 100
+            : 0;
+    }
+
+    // Update play/pause button.
+    function updatePlayerState() {
+        if (audio.paused) {
+            playIcon.textContent = "▶";
+            playButton.setAttribute("aria-label", "Play audio");
+        } else {
+            playIcon.textContent = "Ⅱ";
+            playButton.setAttribute("aria-label", "Pause audio");
+        }
+    }
+
+    // Play or pause audio.
+    playButton.addEventListener("click", async function () {
+        if (audio.paused) {
+            try {
+                await audio.play();
+            } catch (error) {
+                console.error("Audio playback failed:", error);
+            }
+        } else {
+            audio.pause();
+        }
+
+        updatePlayerState();
+    });
+
+    audio.addEventListener("timeupdate", updateProgress);
+    audio.addEventListener("loadedmetadata", updateProgress);
+    audio.addEventListener("durationchange", updateProgress);
+    audio.addEventListener("play", updatePlayerState);
+    audio.addEventListener("pause", updatePlayerState);
+
+    // Reset when audio finishes.
+    audio.addEventListener("ended", function () {
+        audio.currentTime = 0;
+        updateProgress();
+        updatePlayerState();
+    });
+
+    // Allow users to move through the audio.
+    progressBar.addEventListener("input", function () {
+        if (Number.isFinite(audio.duration) && audio.duration > 0) {
+            audio.currentTime =
+                (Number(progressBar.value) / 100) * audio.duration;
+        }
+    });
+
+    updateProgress();
+    updatePlayerState();
+}
+
+
+/* =========================================
+   5. INITIALISE ALL WEBSITE FEATURES
+   ========================================= */
+
+function initialisePortfolio() {
+    initialisePlanner();
+    initialiseContactForm();
+    initialiseLightbox();
+    initialiseAudioPlayer();
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialisePortfolio);
+} else {
+    initialisePortfolio();
 }
